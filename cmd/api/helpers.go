@@ -12,7 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type envelope map[string]any
+type envelope map[string]interface{}
 
 func (app *application) readIDParam(r *http.Request) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
@@ -44,7 +44,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 	dec := json.NewDecoder(r.Body)
@@ -56,7 +56,6 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 		var unmarshalTypeError *json.UnmarshalTypeError
 		var invalidUnmarshalError *json.InvalidUnmarshalError
 		var maxBytesError *http.MaxBytesError
-
 		switch {
 		case errors.As(err, &syntaxError):
 			return fmt.Errorf("body contains badly-formed JSON (at character %d)", syntaxError.Offset)
