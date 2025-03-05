@@ -156,8 +156,8 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 			runtime,
 			genres,
 			version
-			FROM movies
-			ORDER BY id`
+		FROM movies
+		ORDER BY id`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
