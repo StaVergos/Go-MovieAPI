@@ -49,7 +49,6 @@ func (m *Mailer) Send(recipient string, templateFile string, data any) error {
 		return err
 	}
 
-	// Build subject, plain text, and HTML bodies from the template.
 	subject := new(bytes.Buffer)
 	if err = htmlTmpl.ExecuteTemplate(subject, "subject", data); err != nil {
 		return err
@@ -82,6 +81,14 @@ func (m *Mailer) Send(recipient string, templateFile string, data any) error {
 	msg.SetBodyString(mail.TypeTextPlain, plainBody.String())
 	msg.AddAlternativeString(mail.TypeTextHTML, htmlBody.String())
 
-	// DialAndSend will establish a connection for this message and close it afterwards.
-	return m.client.DialAndSend(msg)
+	for i := 1; i <= 3; i++ {
+		err := m.client.DialAndSend(msg)
+		if err == nil {
+			return nil
+		}
+		if i != 3 {
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
+	return err
 }
