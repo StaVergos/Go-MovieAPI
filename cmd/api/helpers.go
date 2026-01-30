@@ -123,10 +123,14 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 }
 
 func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
 	go func() {
+		defer app.wg.Done()
 		defer func() {
-			if r := recover(); r != nil {
-				app.logger.Error(fmt.Sprintf("background goroutine panic: %v", r))
+			pv := recover()
+			if pv != nil {
+				app.logger.Error(fmt.Sprintf("%v", pv))
 			}
 		}()
 		fn()
