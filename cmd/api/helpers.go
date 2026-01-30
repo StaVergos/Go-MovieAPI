@@ -121,3 +121,14 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 	}
 	return i
 }
+
+func (app *application) background(fn func()) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				app.logger.Error(fmt.Sprintf("background goroutine panic: %v", r))
+			}
+		}()
+		fn()
+	}()
+}
